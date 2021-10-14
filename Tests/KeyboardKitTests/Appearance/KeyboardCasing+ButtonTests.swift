@@ -22,10 +22,10 @@ class KeyboardCasing_ButtonTests: QuickSpec {
             }
             
             it("is defined for all states") {
-                expect(result(for: .capsLocked)).to(equal(.shiftCapslocked))
-                expect(result(for: .lowercased)).to(equal(.shiftLowercased))
-                expect(result(for: .neutral)).to(equal(.shiftLowercased))
-                expect(result(for: .uppercased)).to(equal(.shiftUppercased))
+                expect(result(for: .auto)).to(equal(.keyboardShiftLowercased))
+                expect(result(for: .capsLocked)).to(equal(.keyboardShiftCapslocked))
+                expect(result(for: .lowercased)).to(equal(.keyboardShiftLowercased))
+                expect(result(for: .uppercased)).to(equal(.keyboardShiftUppercased))
             }
         }
     }

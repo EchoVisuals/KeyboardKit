@@ -11,35 +11,41 @@ import SwiftUI
 /**
  This file contains keyboard-specific color extensions.
  
- `IMPORTANT` The `KeyboardContext`s `userInterfaceStyle` has
- an incorrect state when `keyboardAppearance` is `.dark` and
- the device runs in `.light` mode. The keyboard will then be
- told that `userInterfaceStyle` is `dark` instead of `light`.
- This is WRONG, since dark keyboard appearance in light mode
- shouldn't look the same as any appearance in dark mode. You
- can see this bug in the SwiftUI demo app and start edit the
- text field that requires dark appearance. The keyboard will
- then apply dark mode colors, while the extension background
- (which is managed by the system) uses the dark appearance's
- background color.
+ These contextual colors may appear to be resolved in a very
+ strange way, but the reason is that iOS currently has a bug
+ that cause `colorScheme` to become incorrect when editing a
+ keyboard with `keyboardAppearance` set to `dark`. This will
+ set the `colorScheme` of the extension to `dark`, even when
+ the system is `light`.
  
- Bug info (also reported to Apple in Feedback Assistant):
- https://github.com/danielsaidi/KeyboardKit/issues/107
+ To work around this bug, the button background colors use a
+ temporary color set with the suffix `ForColorSchemeBug`. It
+ uses dark mode colors that are semi-transparent white, with
+ an opacity that makes them look good in both light mode and
+ dark appearance and dark mode.
+ 
+ For now, the `Color.darkAppearanceStrategy` property can be
+ used to customize whether or not to use dark appearance.
+ 
+ Issue report (also reported to Apple in Feedback Assistant):
+ https://github.com/danielsaidi/KeyboardKit/issues/305
  */
 public extension Color {
     
     /**
-     The standard light background color in a system keyboard.
+     The standard background color of light keys in a system
+     keyboard.
      */
-    static func standardButton(for context: KeyboardContext) -> Color {
-        context.useDarkAppearance ? .standardDarkAppearanceButton : .standardButton
+    static func standardButtonBackgroundColor(for context: KeyboardContext) -> Color {
+        darkAppearanceStrategy(context) ? .standardButtonBackgroundForColorSchemeBug : .standardButtonBackground
     }
     
     /**
-     The standard button tint color in a system keyboard.
+     The standard foreground color of light keys in a system
+     keyboard.
      */
-    static func standardButtonTint(for context: KeyboardContext) -> Color {
-        context.useDarkAppearance ? .standardDarkAppearanceButtonTint : .standardButtonTint
+    static func standardButtonForegroundColor(for context: KeyboardContext) -> Color {
+        darkAppearanceStrategy(context) ? .standardButtonForegroundForDarkAppearance : .standardButtonForeground
     }
     
     /**
@@ -50,14 +56,43 @@ public extension Color {
     }
     
     /**
-     The standard dark background color in a system keyboard.
+     The standard background color of a dark key in a system
+     keyboard.
      */
-    static func standardDarkButton(for context: KeyboardContext) -> Color {
-        context.useDarkAppearance ? .standardDarkAppearanceDarkButton : .standardDarkButton
+    static func standardDarkButtonBackgroundColor(for context: KeyboardContext) -> Color {
+        darkAppearanceStrategy(context) ? .standardDarkButtonBackgroundForColorSchemeBug : .standardDarkButtonBackground
+    }
+    
+    /**
+     The standard foreground color of a dark key in a system
+     keyboard.
+     */
+    static func standardDarkButtonForegroundColor(for context: KeyboardContext) -> Color {
+        darkAppearanceStrategy(context) ? .standardDarkButtonForegroundForDarkAppearance : .standardDarkButtonForeground
     }
 }
 
-private extension KeyboardContext {
+public extension Color {
     
-    var useDarkAppearance: Bool { colorScheme == .light && keyboardAppearance == .dark }
+    /**
+     This is a temporary typealias that is needed as long as
+     iOS keyboard extensions are unable to differ between if
+     dark mode is enabled or a dark appearance text field is
+     being edited, as described in `Color+Button`.
+     */
+    typealias DarkAppearanceStrategy = (KeyboardContext) -> Bool
+    
+    /**
+     This is a temporary property that is used to control if
+     dark appearance should be applied or not. You can set a
+     custom strategy if you want, but it shouldn't be needed.
+     */
+    static var darkAppearanceStrategy: DarkAppearanceStrategy = {
+        // This is how we want things to work...
+        // $0.colorScheme == .light && $0.keyboardAppearance == .dark
+        // ...but according to the bug above, we go with the
+        // dark appearance look for both dark appearance and
+        // dark mode.
+        $0.colorScheme == .dark
+    }
 }

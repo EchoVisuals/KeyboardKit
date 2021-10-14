@@ -9,11 +9,15 @@
 import UIKit
 
 /**
- This protocol is just a util protocol that extends the type
- that implements it with more functionality.
+ This protocol extends `KeyboardInputSetProvider` and can be
+ implemented by any provider that bases its input set on the
+ device being used.
  */
 public protocol DeviceSpecificInputSetProvider: KeyboardInputSetProvider {
     
+    /**
+     The device being used.
+     */
     var device: UIDevice { get }
 }
 

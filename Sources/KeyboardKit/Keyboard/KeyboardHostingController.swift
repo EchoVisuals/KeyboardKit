@@ -19,6 +19,11 @@ import SwiftUI
  */
 public class KeyboardHostingController<Content: View>: UIHostingController<Content> {
     
+    /**
+     Add the hosting controller to a keyboard extension view
+     controller and setup constraints to resize the keyboard
+     extension as the hosting content size changes.
+     */
     public func add(to controller: KeyboardInputViewController) {
         controller.addChild(self)
         controller.view.addSubview(view)
@@ -29,5 +34,10 @@ public class KeyboardHostingController<Content: View>: UIHostingController<Conte
         view.trailingAnchor.constraint(equalTo: controller.view.trailingAnchor).isActive = true
         view.topAnchor.constraint(equalTo: controller.view.topAnchor).isActive = true
         view.bottomAnchor.constraint(equalTo: controller.view.bottomAnchor).isActive = true
+    }
+    
+    public override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        updateViewConstraints()
     }
 }

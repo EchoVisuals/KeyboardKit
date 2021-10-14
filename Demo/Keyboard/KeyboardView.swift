@@ -15,30 +15,30 @@ import KeyboardKit
  
  The view will switch over the current keyboard type and add
  the correct keyboard view.
+ 
+ Set `addTextFieldAboveKeyboard` to true to add a text field
+ above the demo keyboard. This text field will automatically
+ take over as the main proxy instead of the main app.
  */
 struct KeyboardView: View {
     
-    var actionHandler: KeyboardActionHandler
-    var appearance: KeyboardAppearance
-    var layoutProvider: KeyboardLayoutProvider
+    let addTextFieldAboveKeyboard = false
     
-    @EnvironmentObject var autocompleteContext: AutocompleteContext
-    @EnvironmentObject var keyboardContext: KeyboardContext
-    @EnvironmentObject var toastContext: KeyboardToastContext
+    let actionHandler: KeyboardActionHandler
+    let appearance: KeyboardAppearance
+    let layoutProvider: KeyboardLayoutProvider
+    
+    @State private var text = "Text"
+    
+    @EnvironmentObject private var keyboardContext: KeyboardContext
+    @EnvironmentObject private var inputContext: InputCalloutContext
+    @EnvironmentObject private var secondaryInputContext: SecondaryInputCalloutContext
     
     var body: some View {
-        keyboardView.keyboardToast(
-            context: toastContext,
-            background: toastBackground)
-    }
-    
-    @ViewBuilder
-    var keyboardView: some View {
         switch keyboardContext.keyboardType {
-        case .alphabetic, .numeric, .symbolic: systemKeyboard
+        case .alphabetic, .numeric, .symbolic: systemKeyboardStack
         case .emojis: emojiKeyboard
-        case .images: imageKeyboard
-        default: Button("???", action: switchToDefaultKeyboard)
+        default: Button("Unsupported keyboard", action: switchToDefaultKeyboard)
         }
     }
 }
@@ -48,57 +48,45 @@ struct KeyboardView: View {
 
 private extension KeyboardView {
     
-    var autocompleteBar: some View {
-        AutocompleteToolbar(
-            suggestions: autocompleteContext.suggestions,
-            itemBuilder: autocompleteBarItemBuilder)
-            .frame(height: 50)
-    }
-    
-    func autocompleteBarItem(for suggestion: AutocompleteSuggestion) -> AnyView {
-        guard let subtitle = suggestion.subtitle else { return AutocompleteToolbar.standardItem(for: suggestion) }
-        return AnyView(VStack(spacing: 0) {
-            AutocompleteToolbarItemText(suggestion: suggestion)
-            Text(subtitle).font(.footnote)
-        }.frame(maxWidth: .infinity))
-    }
-    
-    func autocompleteBarItemBuilder(suggestion: AutocompleteSuggestion) -> AnyView {
-        AnyView(autocompleteBarItem(for: suggestion)
-                    .background(Color.clearInteractable))
-    }
-    
     @ViewBuilder
     var emojiKeyboard: some View {
         if #available(iOSApplicationExtension 14.0, *) {
-            EmojiCategoryKeyboard().padding(.vertical)
+            EmojiCategoryKeyboard(
+                appearance: appearance,
+                context: keyboardContext)
+                .padding(.vertical)
         } else {
             Text("Requires iOS 14 or later")
         }
     }
     
-    var imageKeyboard: some View {
-        ImageKeyboard(
+    var systemKeyboard: some View {
+        SystemKeyboard(
+            layout: layoutProvider.keyboardLayout(for: keyboardContext),
+            appearance: appearance,
             actionHandler: actionHandler,
-            appearance: appearance)
-            .padding()
+            context: keyboardContext,
+            inputContext: inputContext,
+            secondaryInputContext: secondaryInputContext,
+            buttonBuilder: buttonBuilder)
     }
     
-    var systemKeyboard: some View {
+    var systemKeyboardStack: some View {
         VStack(spacing: 0) {
-            autocompleteBar
-            SystemKeyboard(
-                layout: layoutProvider.keyboardLayout(for: keyboardContext),
-                appearance: appearance,
-                actionHandler: actionHandler,
-                buttonBuilder: buttonBuilder)
+            DemoAutocompleteToolbar()
+            if addTextFieldAboveKeyboard {
+                textField
+            }
+            systemKeyboard
         }
     }
     
-    var toastBackground: some View {
-        Color.white
-            .cornerRadius(3)
-            .shadow(color: Color.black.opacity(0.3), radius: 2, x: 1, y: 1)
+    var textField: some View {
+        KeyboardTextField(text: $text, config: {
+            $0.placeholder = "Try typing here, press return to stop."
+            $0.borderStyle = .roundedRect
+            $0.autocapitalizationType = .sentences
+        }).padding(3)
     }
 }
 
@@ -107,10 +95,17 @@ private extension KeyboardView {
 
 private extension KeyboardView {
     
-    func buttonBuilder(action: KeyboardAction) -> AnyView {
+    func buttonBuilder(
+        action: KeyboardAction,
+        appearance: KeyboardAppearance,
+        context: KeyboardContext) -> AnyView {
         switch action {
-        case .space: return AnyView(SystemKeyboardSpaceButtonContent())
-        default: return SystemKeyboard.standardButtonBuilder(action: action)
+        // You can replace the default button content here.
+        default:
+            return SystemKeyboard.standardButtonBuilder(
+                action: action,
+                appearance: appearance,
+                context: context)
         }
     }
     

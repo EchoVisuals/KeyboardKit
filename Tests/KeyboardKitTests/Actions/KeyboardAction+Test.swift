@@ -9,7 +9,6 @@
 import Quick
 import Nimble
 import KeyboardKit
-import UIKit
 
 extension KeyboardAction {
     
@@ -20,7 +19,7 @@ extension KeyboardAction {
             .character(""),
             .command,
             .control,
-            .custom(name: ""),
+            .custom(named: ""),
             .dictation,
             .dismissKeyboard,
             .emoji(Emoji("")),
@@ -37,7 +36,7 @@ extension KeyboardAction {
             .keyboardType(.email),
             .keyboardType(.emojis),
             .keyboardType(.images),
-            .keyboardType(.custom("")),
+            .keyboardType(.custom(named: "")),
             
             .moveCursorBackward,
             .moveCursorForward,

@@ -1,12 +1,428 @@
-# Release Notes
+# Release notes
 
-KeyboardKit tries to honor the following rules when new versions are released:
+KeyboardKit tries to honor semantic versioning:
 
 * Only deprecate code in `minor` versions.
 * Only remove deprecated code in `major` versions.
 * Avoid introducing breaking changes in `minor` versions. 
 
-Breaking changes can still occur in minor versions, if the alternative is to not release new critical features or fixes.
+Breaking changes can still occur in minor versions and patches, though, if the alternative is to not be able to release new critical features or fixes.
+
+
+
+## 5.0
+
+KeyboardKit 5.0 streamlines the library, improves styling and previewing and makes the library easier to use.
+
+This version also removes all UIKit-specific functionality as well as all previously deprecated functionality.
+
+This version also adjust keyboard button sizes to be more correct on more device types, e.g. iPhone Pro Max, iPad Pro etc. 
+
+KeyboardKit 5.0 requires Xcode 13 and Swift 5.5. 
+
+### ✨ New features
+
+* Library types now implement protocols like `Codable` and `Identifiable` to greater extent.
+* Library views have a lot more previews than before, which make them much easier to adjust.
+* Library views no longer depend on environment objects, which make them easier to create and use.
+
+* `AudioFeedbackConfiguration` has a new action-specific feedback list.
+* `AudioFeedbackConfiguration` has a new, static `enabled` configuration.
+* `AutocompleteContext` has a new `isLoading` property.
+* `AutocompleteToolbarItemSubtitle` is a new view that renders autocomplete subtitles.
+* `Collection+RowItem` has new extensions to affect all rows.
+* `EdgeInsets` has a new `init(all:)` initializer.
+* `EdgeInsets` has a new `init(horizontal:,vertical:)` initializer.
+* `EmojiCategory` has a new `emojisString` property.
+* `EmojiKeyboardStyle` has new `systemFont` and `selectedCategoryColor` properties.
+* `HapticFeedbackConfiguration` has a new action-specific feedback list.
+* `HapticFeedbackConfiguration` has a new, static `enabled` configuration.
+* `InputCalloutContext` has a new, static `.disabled` context.
+* `KeyboardAction` has a new `inputCalloutText` property.
+* `KeyboardAction` has a new `isCharacterAction` property.
+* `KeyboardAppearance` has a new `inputCalloutStyle()` function.
+* `KeyboardAppearance` has a new `secondaryInputCalloutStyle()` function.
+* `KeyboardContext` has a new `screen` property.
+* `KeyboardInputTextComponent` is now public.
+* `KeyboardLayoutConfiguration` is a new type that replaces the `CGFloat` and `UIEdgeInsets` extensions.
+* `KeyboardLayoutConfiguration` has a bunch of standard layout configs for different devices.  
+* `NextKeyboardButton` is now SwiftUI-based and don't require any special setup.
+* `Preview` services have new, static `.preview` protocol properties.
+* `SecondaryInputCalloutContext` has a new, static `.disabled` context.
+* `StandardHapticFeedbackPlayer` has a new `shared` player.
+* `StandardKeyboardFeedbackHandler` now prefers action-specific feedback, if defined.
+* `StandardSystemAudioPlayer` has a new `shared` player.
+* `SystemKeyboardActionButton` is a new view that makes it easy to create action-based keyboard buttons.
+* `SystemKeyboardButton` is a new view that makes it easy to create standalone keyboard buttons.
+* `SystemKeyboardButtonText` is a new view that just sets up text correctly. 
+* `SystemKeyboardSpaceButton` can now wrap any content.
+* `View+Callout` has a new `calloutShadow` extension.
+
+### 🎨 Styling
+
+* `AutocompleteToolbarStyle` is a new style that can style autocomplete toolbars.
+* `AutocompleteToolbarItemStyle` is a new style that can style autocomplete toolbar items.
+* `AutocompleteToolbarItemBackgroundStyle` is a new style that can style the autocomplete highlight. 
+* `AutocompleteToolbarSeparatorStyle` is a new style that can style autocomplete toolbar separators.
+* `CalloutStyle` has a new, static `.standard` style.
+* `InputCalloutStyle` has a new, static `.standard` style.
+* `SecondaryInputCalloutStyle` has a new, static `.standard` style.
+* `SystemKeyboardButtonBorderStyle` has a new, static `.standard` style.
+* `SystemKeyboardButtonShadowStyle` has a new, static `.standard` style.
+* `SystemKeyboardButtonShadowStyle` has new, default init parameter values.  
+
+### 💡 Behavior changes
+
+* `AutocompleteToolbar` now applies the autocomplete background instead of the item view.
+* `AutocompleteToolbarItem`'s standard item builder now renders a subtitle if the suggestion has one.
+* `InputCallout` and `SecondaryInputCallout` look more like the native callouts.
+* `KeyboardAction+Button` now returns `KKL10n.space` for `.space` action.
+* `KeyboardGestures` now resolves input contexts from the shared controller, instead of using environment objects.
+* `StandardKeyboardAppearance` uses a small transparency to make standard buttons bleed through the underlying vibrancy.
+* `SystemKeyboard` uses the new callout styles in the appearance.
+* `SystemKeyboardActionButtonContent` now returns a `SystemKeyboardSpaceButtonContent` for `.space`. 
+* `SystemKeyboardButtonContent` now uses appearance for both text and image logic.
+* `SystemKeyboardButtonContent` no longer applies RTL transforms on the image, since SF symbols do this automatically.
+* `SystemKeyboardButtonStyle` now applies a standard shadow style by default.
+* `SystemKeyboardSpaceButtonContent` no longer auto-resolves texts, but instead show just what you provide it with.
+* `SystemKeyboardSpaceButton` now takes up as much horizontal space as it can.
+
+### 🐛 Bug fixes
+
+* `InputCallout` and `SecondaryInputCallout` no longer get tear lines in some apps.   
+* `SystemKeyboardActionButton` now handles the `.nextKeyboard` action correctly.
+
+### 💥 Breaking changes
+
+* All deprecated functionality has been removed.
+* All UIKit-specific functionality has been removed.
+* Library views that no longer depend on environment objects, may require more init parameters.
+* Initializer argument changes are omitted in the list below.
+
+* `AutocompleteProvider` `ignoredWords` is now read-only.
+* `AutocompleteResponse` has been renamed to `AutocompleteCompletion`.
+* `AutocompleteToolbarItemText` has been renamed to `AutocompleteToolbarItemTitle`.
+* `AudioFeedback` has been renamed to `SystemAudio`.
+* `BaseSecondaryCalloutActionProvider`'s init is now throwing.
+* `CalloutStyle` `buttonOverlayInset` has been renamed to `buttonInset`.
+* `CGFloat+Keyboard` has been replaced with `KeyboardLayoutConfiguration`.
+* `Color` `clearInteractable` has been made as internal and will be removed over time.
+* `EdgeInsets+Keyboard` has been replaced with `KeyboardLayoutConfiguration`.
+* `EmojiKeyboard` button builder no longer takes a context.
+* `EmojiKeyboardConfiguration` has been renamed to `EmojiKeyboardStyle`
+* `HapticFeedback` `prepare` and `trigger` now only has a non-static version.
+* `HapticFeedback.player` has been removed.
+* `InputCalloutContext` `buttonFrame(for:)` has been removed.
+* `InputCalloutContext` `updateInput(for:geo:)` has been renamed to `updateInput(for:,in:)`.
+* `KeyboardAction+Button` styles have been moved into `StandardKeyboardAppearance`.
+* `KeyboardBehavior` has a new `shouldSwitchToCapsLock` function.
+* `KeyboardCasing.neutral` has been removed.
+* `KeyboardEnabledStateInspector` `isKeyboardEnabled` `for` parameters has been renamed to `withBundleId`. 
+* `KeyboardInputSetProvider` functions have been converted to properties.
+* `KeyboardType.custom` has been renamed to `KeyboardType.custom(named:)`.
+* `SecondaryInputCalloutContext` `alignment` is now a `HorizontalAlignment`.
+* `SecondaryInputCalloutContext` `buttonFrame(for:)` has been removed.
+* `SecondaryInputCalloutContext` `updateInputs(for:geo:alignment)` has been renamed to `updateInputs(for:in:alignment:)`.
+* `SecondaryInputCalloutStyle` `selectedTextColor` has been renamed to `selectedForegroundColor`.
+* `SecondaryInputCalloutStyle` `verticalPadding` has been renamed to `verticalTextPadding`.
+* `Sequence` `batched(withBatchSize:)` has been renamed to `batched(into:)`. 
+* `SpaceDragSensitivity.custom` has been renamed to `custom(points:)`.
+* `SystemAudio` `systemId` has been renamed to `id`.
+* `SystemAudio` `trigger` has been renamed to `play`.
+* `SystemAudio` `play` now only has a non-static version.
+* `SystemAudio.player` is now `SystemAudioPlayer.shared`.
+* `SystemAudioPlayer` now takes `SystemAudio` as argument.
+* `SystemKeyboardButton` has been renamed to `SystemKeyboardActionButton`.
+* `SystemKeyboardButtonContent` has been renamed to `SystemKeyboardActionButtonContent`.
+* `SystemKeyboardButtonRowItem` now requires an injected `context`.
+* `SystemKeyboardLayoutProvider` `hasElevenElevenSevenAlphabeticInput` is now computed instead of lazy.
+* `Toast` has been removed.
+* `UITextDocumentProxy` `deleteBackward` with range has been renamed to `deleteBackward(range:)`
+* `View+DynamicType` has been removed.
+* `View+Autocomplete` has been removed.
+* `View+Callout` is now internal.
+* `View+DynamicType` has been removed.
+
+
+
+## 4.9.3
+
+### ✨ New features
+
+* `PreviewKeyboardAppearance` has been made public.
+
+
+
+## 4.9.2
+
+This version renames images to avoid preview problems in apps that define the same image names.
+
+### 🗑 Deprecations
+
+* A bunch of images have been renamed with a `keyboard` name prefix.
+
+
+
+## 4.9.1
+
+This version fixes the iOS 15 autorotate bug and adds a property that can suppress the `needsInputModeSwitchKey` warning.
+
+### ✨ New features
+
+* `KeyboardInputViewController` has a new `viewWillSetupKeyboard` function that can be overridden to setup the keyboard at the proper time. It's just a convenience function. You can still setup the keyboard whenever you want.
+* `KeyboardInputViewController` has a new, static `needsInputModeSwitchKeyOverride` that can be set to make all input controllers ignore the real value. This can be useful when you want to create a keyboard preview and don't want all the warnings.
+* `KeyboardInputViewController` has a new `needsInputModeSwitchKeyOverride` that can be set to make an input controllers ignore the real value. It will default to the static property value.
+
+### 🗑 Deprecations
+
+* `KeyboardInputViewController` `setup(with:)` stack view variant is deprecated and will be removed in 5.0.
+
+
+
+## 4.9.0
+
+This version adds styles, which makes it a lot easier to style system keyboards.
+
+It also exposes more system keyboard views and styles publicly.
+
+Starting with this version, the library will start deprecating stuff that willbe changed in KK 5. The aim is to release several patches to prepare the library for the changes to come through deprecations instead of breaking changes.
+
+### ✨ New features
+
+* `KeyboardAppearance` has a new `systemKeyboardButtonStyle` function.
+* `NextKeyboardButton` has an iOS 14 exclusive `Color`-based initializer that is now used by `SystemKeyboardButtonContent`
+* `SystemKeyboardButtonBody` is a new view that represents the body of a system keyboard button.
+* `SystemKeyboardButtonShadow` is a new view that represents the shadow of a system keyboard button.
+* `SystemKeyboardButtonStyle` is a new style that can be used to define a system keyboard button style. 
+* `SystemKeyboardButtonBorderStyle` is a new style that can be used to define a system keyboard button border.
+* `SystemKeyboardButtonShadowStyle` is a new style that can be used to define a system keyboard button shadow.
+* `TextInputProxy` now implements `UITextInputTraits` as well.
+* `View+systemKeyboardButtonStyle` view extension now taes a style instead of an apperance, action and isPressed bool.
+
+### 🐛 Bug fixes
+
+* Thanks to [@ardavank](https://github.com/ardavank), the `EmojisCategoryKeyboardMenu` now uses fixed fonts.
+* `SystemKeyboardButtonContent` now applies the appearance text color to the "next keyboard" button (on iOS 14+).
+
+### 🗑 Deprecations
+
+* `AutocompleteSuggestionProvider` has been renamed to `AutocompleteProvider`.
+* `KeyboardAppearance` has deprecated all functions that now can be fetched from the new `systemKeyboardButtonStyle` style.
+* `KeyboardInputViewController` `autocompleteSuggestionProvider` has been renamed to `autocompleteProvider`.
+* `View+keyboardButtonStyle` has been replaced with `View+systemKeyboardButtonStyle`.
+
+### 💥 Breaking changes
+
+* More system keyboard views require an explicit appearance to be injected.
+* The `AutocompleteSuggestionProvider` `autocompleteSuggestions` is now escaping.
+
+
+
+## 4.8.0
+
+This versions adds new colors, such as the new standard keyboard background colors, which you can use to mimic keyboard backgrounds.
+
+There are other new colors as well, that are used to work around the iOS color scheme bug, described [here](https://github.com/KeyboardKit/KeyboardKit/issues/305) and in the docs.
+
+This makes it possible for us to finally workaround the dark mode color bug, and let the system keyboard look as the system keyboard in both dark mode and dark appearance keyboards.  
+
+Finally, the dark appearance colors have been renamed and their old names deprecated.
+
+### ✨ New features
+
+* `KeyboardLocale` is now `Codable`.
+* `KeyboardColor` has new colors.
+* `Color+Keyboard` has new colors.
+* `.standardButtonBackgroundForColorSchemeBug` is a new color scheme bug color.
+* `.standardDarkButtonBackgroundForColorSchemeBug` is a new color scheme bug color.
+
+### 💡 Behavior changes
+
+* The standard keyboard apperance now uses the new color scheme bug colors, which should make the keyboards look more like the standard ones in dark mode and for dark appearance keyboards.
+* `CalloutStyle.standard` now uses the look of `systemStyle`, since that IS the standard. The system styles have been deprecated.
+* `SystemKeyboard` uses the new standard callout styles.  
+
+
+### 🐛 Bug fixes
+
+* `InputCallout` now applies the provided style's callout text color.
+* `SecondaryInputCallout` now uses the provided style's callout text color.
+* `View+Button` now applies shadows in a way that doesn't affect the button content.
+* `SystemKeyboard` now looks closer to the iOS system keyboards, in both dark mode and dark appearance.
+
+### 🗑 Deprecations
+
+* Color extensions for the button background colors are now suffixed with `Background`.
+* Color extensions for the button tints colors are now suffixed with `Foreground` instead of `Tint`.
+* Color extensions with the name `standardDarkAppearance*` have been renamed to `standard*ForDarkAppearance`.
+* `CalloutStyle.systemStyle`, `InputCalloutStyle.systemStyle` and `SecondaryInputCalloutStyle.systemStyle` are deprecated. 
+
+### 💥 Breaking changes
+
+* `KeyboardColor`'s dark appearance cases have been renamed to keep things tight.
+* `SecondaryInputCalloutStyle`'s text color property has been removed. Use the callout style's text color instead.  
+
+
+
+## 4.7.2
+
+### 🐛 Bug fixes
+
+* Thanks to @AntoineBache, `KeyboardTextField` and `KeyboardTextView` no longer resize if their text content gets to wide. 
+
+
+
+## 4.7.1
+
+### ✨ New features
+
+* `Color.darkAppearanceStrategy` is a new, temporary property that lets you inject a custom strategy that controls whether or not to apply a dark appearance color scheme to your keyboard. This lets you work around the current color scheme bug that is described in `Color+Button.swift` and override the standard strategy of always applying dark apperance colors when the keyboard context's `colorScheme` is `.dark`.
+
+If you find a way to determine this correctly and to work around the system behavior, please share your findings.
+
+
+
+## 4.7
+
+This version makes KeyboardKit compile for Xcode 13.0 beta 3.
+
+From now, all new versions of KeyboardKit will support the latest Xcode version. 
+
+### 💥 Breaking changes
+
+* `CGFloat+Keyboard` and `EdgeInsets+Keyboard` now uses the shared vc instead of the shared application. 
+
+
+
+## 4.6.4
+
+### ✨ New features
+
+* `SystemKeyboardButton` has a new `contentConfig` init param that allows you to modify the button content before wrapping it in a style and applying gestures.
+
+### 💡 Behavior changes
+
+* `KeyboardAction.primary` no longer applies autocomplete by default, which solves e.g. autocomplete suggestions being applied in the Safari address bar. 
+
+
+
+## 4.6.3
+
+### ✨ New features
+
+* `KeyboardTextField` and `KeyboardTextView` now accepts a text binding, so that you can access the typed text.
+
+### 💡 Behavior changes
+
+* `KeyboardTextField` and `KeyboardTextView` now share functionality through a new protocol.
+
+### 🐛 Bug fixes
+
+* Thanks to @junyng, deleting backwards now works even when `documentContextBeforeInput` is nil.
+
+### 💥 Breaking changes
+
+* `KeyboardTextField` and `KeyboardTextView` now requires a text binding. 
+
+
+
+## 4.6.2
+
+### 🐛 Bug fixes
+
+This version adjusts the colors that are used for dark keyboard appearance and dark mode keyboards, to make keyboards look better in dark appearance when in light mode. 
+
+The problem is discussed [here](https://github.com/KeyboardKit/KeyboardKit/issues/285).
+
+This fix makes the button a little brighter in dark mode, but that's a lot better than having them be a little darker in dark appearance light mode.
+
+
+
+## 4.6.1
+
+### 🐛 Bug fixes
+
+This version fixes a bug that caused the keyboard type to not change when typing into a `TextInputProxy` text field.   
+
+
+
+## 4.6
+
+This version adds features that makes it possible to add text fields and text views to the keyboard extension and automatically redirect keyboard events there instead of using the hosting app.
+
+You can either set `KeyboardInputViewController.shared.textInputProxy` directly, or use the new `KeyboardTextField` and `KeyboardTextView` views that does this automatically.
+
+### ✨ New features
+
+* There is a new `Proxy` namespace to which the `UITextDocumentProxy` extensions have been moved.
+* `KeyboardInputViewController` has a new `textInputProxy` that can be set to redirect the keyboard to that proxy instead of the original `textDocumentProxy`.
+* `KeyboardTextField` and `KeyboardTextView` are two new views that can be used in keyboard extensions and that will automatically redirect keyboard events to them when they become first responder.
+* `TextInputProxy` is a new class that can be used to redirect the keyboard events to any text input.
+
+### 🐛 Bug fixes
+
+* This version fixes a gesture bug that caused the space tap action to be triggered even after long pressing and dragging the cursor around.   
+
+### 💥 Breaking changes
+
+* `KeyboardInputViewController` `viewWillSyncWithTextDocumentProxy` was not used internally and has been removed. If you override this in your own keyboards, just override `viewWillAppear` instead. 
+
+
+
+## 4.5.6
+
+### 🐛 Bug fixes
+
+* `ibayramli2001` and `amirshane` have fixed a crash when deleting backwards without any content in the proxy.   
+
+
+
+## 4.5.5
+
+### ✨ New features
+
+* `KeyboardCasing` has a new `auto` case.
+
+### 💡 Behavior changes
+
+* `SystemKeyboardLayoutProvider` uses the new `auto` case for numeric and symbolic keyboard type switches.
+
+### 🐛 Bug fixes
+
+* This version fixes a bug that caused numeric and symbolid keyboards to always switch back to lowercased alphabetic keyboards.
+
+### 🗑 Deprecations
+
+* `BaseKeyboardLayoutProvider` has been renamed to `SystemKeyboardLayoutProvider`.
+* `KeyboardCasing.neutral` is deprecated and will be removed. 
+
+
+
+## 4.5.4
+
+### ✨ New features
+
+* `StandardKeyboardActionHandler` `canHandle` is now `open` instead of `public`.
+
+
+
+## 4.5.3
+
+### 💡 Behavior changes
+
+* `KeyboardGestures` now use the drag gesture to trigger tap actions instead of a tap gesture. This increases responsiveness and ensures that taps aren't cancelled when you press for too long.
+* `KeyboardGestures` now only applies a double tap gesture if a double tap action is provided. 
+* The changes above helps reducing the number of active gestures and reduces the overall gesture complexity.
+
+### 🐛 Bug fixes
+
+* This version fixes compile errors in Xcode 12.4.
+
+### 🗑 Deprecations
+
+* `Image.settings` has been renamed to `keyboardSettings`.
+* `Image.moveCursorLeft/Right` have been renamed to `keyboardLeft/Right`.
+
 
 
 ## 4.5.3
@@ -27,9 +443,11 @@ It's also easier to create unicode keyboards, using the new initializers.
 This version fixes a bug that caused the keyboard layout to not update.
 
 
+
 ## 4.5.1
 
 This version fixes a bug that caused the secondary actions to not update.
+
 
 
 ## 4.5
@@ -63,7 +481,7 @@ This version adds new locales, external keyboard detection, dynamic type disabli
 
 * The German localized newline symbol for Return is now correctly rendered as an image. 
 
-### 🗑 Deprecated (removed in 5.0)
+### 🗑 Deprecations
 
 * `KeyboardAction` `standardButtonFont` has been renamed to `standardButtonUIFont`.
 * `KeyboardAction` `standardButtonFontWeight` has been renamed to `standardButtonUIFontWeight`.
@@ -126,7 +544,7 @@ There are also several tweaks and behavior changes that make system keyboards be
 * Standard font sizes are adjusted to fit the native keyboards better.
 * The standard backspace range is now progressive and will increase after backspace has been pressed for a while.
 
-### 🗑 Deprecated (removed in 5.0)
+### 🗑 Deprecations
 
 * `KeyboardContext` `deviceOrientation` has been renamed to `screenOrientation`.
 * `UIApplication` `preferredKeyboardInterfaceOrientation` didn't work and will be removed.
@@ -184,7 +602,7 @@ This version introduces a bunch of changes to how feedback is being handled.
 * Audio feedback types have been moved to `Feedback`.
 * Haptic feedback types have been moved to `Feedback`.
 
-### 🗑 Deprecated (removed in 5.0)
+### 🗑 Deprecations
 
 * `AudioFeedback` `systemPlayer` has been renamed to `player`.
 * `KeyboardInputViewController` `keyboardStackView` has been replaced with a new `setup(with:)`.
@@ -222,7 +640,7 @@ This version adds support for primary actions, such as `.done`, `.go`, `.search`
 * New line is now considered to be a `word` delimiter instead of a `sentence` delimiter.
 * Due to the new ways to localize content, some signatures must be changed to optional strings.
 
-### 🗑 Deprecated (removed in 5.0)
+### 🗑 Deprecations
 
 * `KeyboardAction` `.done`, `.go`, `.ok` and `.search`  have been deprecated and replaced with the new `primary` umbrella type.
 
@@ -290,7 +708,7 @@ KeyboardKit Pro 4.1 also adds more locale-specific providers as well as a real a
 * `KeyboardLocale+key` has been renamed to `id`.
 * `LocaleKey` has been renamed to `KeyboardLocale`.
 
-### 🗑 Deprecated (removed in 5.0)
+### 🗑 Deprecations
 
 * `AutocompleteSuggestion+replacement` has been deprecated due to the name change above.
 * `AutocompleteToolbar+buttonBuilder` init has been deprecated and replaced with the `itemBuilder` one.

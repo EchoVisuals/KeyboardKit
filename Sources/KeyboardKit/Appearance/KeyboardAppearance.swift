@@ -11,21 +11,45 @@ import SwiftUI
 
 /**
  This protocol can be implemented by any classes that can be
- used to retrieve appearance properties for a keyboard.
+ used to provide appearance information for keyboard actions.
+ 
+ Unlike a style, an appearance is contextual. It requires an
+ implementation, while a style is just a struct. You can use
+ an appearance to generate styles that can be applied to the
+ keyboard and its buttons.
  
  `KeyboardKit` will automatically create a standard instance
- and bind it to the input view controller when the extension
- is started. You can use it and replace it with a custom one.
+ when the keyboard input view controller is created. You can
+ use the standard instance as is or replace it with a custom
+ one if you want to customize your keyboard.
  */
-public protocol KeyboardAppearance {
+public protocol KeyboardAppearance: AnyObject {
     
-    var keyboardBackgroundColor: Color { get }
-    
-    func buttonBackgroundColor(for action: KeyboardAction, isPressed: Bool) -> Color
-    func buttonCornerRadius(for action: KeyboardAction) -> CGFloat
-    func buttonFont(for action: KeyboardAction) -> Font
-    func buttonForegroundColor(for action: KeyboardAction, isPressed: Bool) -> Color
+    /**
+     The button image to use for a certain `action`, if any.
+     */
     func buttonImage(for action: KeyboardAction) -> Image?
-    func buttonShadowColor(for action: KeyboardAction) -> Color
+    
+    /**
+     The button text to use for a certain `action`, if any.
+     */
     func buttonText(for action: KeyboardAction) -> String?
+    
+    /**
+     The input callout style to apply when showing a callout
+     that shows the currently pressed key.
+     */
+    func inputCalloutStyle() -> InputCalloutStyle
+    
+    /**
+     The secondary input callout style to apply when showing
+     a callout that shows secondary input actions.
+     */
+    func secondaryInputCalloutStyle() -> SecondaryInputCalloutStyle
+    
+    /**
+     The system keybard button style to use for the provided
+     `action` given a certain `isPressed` state.
+     */
+    func systemKeyboardButtonStyle(for action: KeyboardAction, isPressed: Bool) -> SystemKeyboardButtonStyle
 }

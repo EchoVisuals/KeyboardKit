@@ -13,7 +13,7 @@ import UIKit
  KeyboardKit and provides a standard way of handling actions.
  
  You can inherit this class and override any open properties
- and functions to customize the standard behavior.
+ and functions to customize the standard action behavior.
  */
 open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
     
@@ -32,7 +32,9 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
         self.keyboardContext = ivc.keyboardContext
         self.keyboardFeedbackHandler = ivc.keyboardFeedbackHandler
         self.spaceDragGestureHandler = spaceDragGestureHandler ?? SpaceCursorDragGestureHandler(
-            context: ivc.keyboardContext, feedbackHandler: ivc.keyboardFeedbackHandler, sensitivity: spaceDragSensitivity)
+            context: ivc.keyboardContext,
+            feedbackHandler: ivc.keyboardFeedbackHandler,
+            sensitivity: spaceDragSensitivity)
     }
     
     public init(
@@ -51,7 +53,9 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
         self.keyboardContext = keyboardContext
         self.keyboardFeedbackHandler = keyboardFeedbackHandler
         self.spaceDragGestureHandler = spaceDragGestureHandler ?? SpaceCursorDragGestureHandler(
-            context: keyboardContext, feedbackHandler: keyboardFeedbackHandler, sensitivity: spaceDragSensitivity)
+            context: keyboardContext,
+            feedbackHandler: keyboardFeedbackHandler,
+            sensitivity: spaceDragSensitivity)
     }
     
     
@@ -81,14 +85,28 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
     
     // MARK: - KeyboardActionHandler
     
-    public func canHandle(_ gesture: KeyboardGesture, on action: KeyboardAction) -> Bool {
+    /**
+     Whether or not the action handler can be used to handle
+     a certain `gesture` on a certain `action`.
+     */
+    open func canHandle(_ gesture: KeyboardGesture, on action: KeyboardAction) -> Bool {
         self.action(for: gesture, on: action) != nil
     }
     
+    /**
+     Try to handling a certain `gesture` n a certain `action`.
+     */
     open func handle(_ gesture: KeyboardGesture, on action: KeyboardAction) {
         handle(gesture, on: action, replaced: false)
     }
     
+    /**
+     Try to handling a certain `gesture` n a certain `action`.
+     
+     This function is used by the standard action handler to
+     handle the cases where the action can be triggered as a
+     result of another operation, e.g. autocomplete handling.
+     */
     open func handle(_ gesture: KeyboardGesture, on action: KeyboardAction, replaced: Bool) {
         if !replaced && tryHandleReplacementAction(before: gesture, on: action) { return }
         triggerFeedback(for: gesture, on: action)
@@ -120,15 +138,25 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
     /**
      This is the standard action that is used by the handler
      when a gesture is performed on a certain action.
+     
+     You can override this function to customize how actions
+     are handled by. By default, the `standardAction` of the
+     `action` is triggered.
      */
     open func action(for gesture: KeyboardGesture, on action: KeyboardAction) -> KeyboardAction.GestureAction? {
         action.standardAction(for: gesture)
     }
     
     /**
-     Try to resolve and handle a replacement keyboard action
-     before the `gesture` is performed on the `action`. When
-     this returns `true`, the caller should abort.
+     Try to resolve a replacement keyboard action before the
+     `gesture` is performed on the `action`.
+     
+     This should happen when, for instance, a quotation char
+     is tapped, and it should be replaced with an ending one.
+     
+     You can override this function to customize how actions
+     are replaced. By default, the `preferredReplacement` of
+     the `textDocumentProxy` will be used.
      */
     open func replacementAction(for gesture: KeyboardGesture, on action: KeyboardAction) -> KeyboardAction? {
         guard
@@ -136,17 +164,21 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
             case let .character(char) = action,
             let replacement = textDocumentProxy.preferredReplacement(for: char, locale: keyboardContext.locale)
             else { return nil }
-        return KeyboardAction.character(replacement)
+        return .character(replacement)
     }
     
     /**
      Trigger feedback for a certain `gesture` on an `action`.
      
-     By default this calls the `keyboardFeedbackHandler` but
-     you can override it to customize the feedback behavior.
+     You can override the function to customize how feedback
+     is triggered. By default, the `keyboardFeedbackHandler`
+     will be used.
      */
     open func triggerFeedback(for gesture: KeyboardGesture, on action: KeyboardAction) {
-        keyboardFeedbackHandler.triggerFeedback(for: gesture, on: action, actionProvider: self.action)
+        keyboardFeedbackHandler.triggerFeedback(
+            for: gesture,
+            on: action,
+            actionProvider: self.action)
     }
     
     /**
@@ -221,83 +253,5 @@ open class StandardKeyboardActionHandler: NSObject, KeyboardActionHandler {
         guard gesture == .tap else { return }
         guard action.shouldRemoveAutocompleteInsertedSpace else { return }
         textDocumentProxy.tryRemoveAutocompleteInsertedSpace()
-    }
-    
-    
-    // MARK: - Deprecated (non-open deprecated in _Deprecated folder)
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler-based initializer")
-    public init(
-        keyboardContext: KeyboardContext,
-        keyboardBehavior: KeyboardBehavior,
-        autocompleteContext: AutocompleteContext,
-        autocompleteAction: @escaping () -> Void,
-        changeKeyboardTypeAction: @escaping (KeyboardType) -> Void,
-        hapticConfiguration: HapticFeedbackConfiguration = .standard,
-        audioConfiguration: AudioFeedbackConfiguration = .standard,
-        spaceDragSensitivity: SpaceDragSensitivity = .medium) {
-        self.autocompleteAction = autocompleteAction
-        self.autocompleteContext = autocompleteContext
-        self.changeKeyboardTypeAction = changeKeyboardTypeAction
-        self.keyboardBehavior = keyboardBehavior
-        self.keyboardContext = keyboardContext
-        let feedbackHandler = StandardKeyboardFeedbackHandler(
-            settings: KeyboardFeedbackSettings(audioConfiguration: audioConfiguration, hapticConfiguration: hapticConfiguration))
-        self.keyboardFeedbackHandler = feedbackHandler
-        self.spaceDragGestureHandler = SpaceCursorDragGestureHandler(
-            context: keyboardContext,
-            feedbackHandler: feedbackHandler,
-            sensitivity: spaceDragSensitivity)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler-based initializer")
-    public init(
-        inputViewController: KeyboardInputViewController,
-        hapticConfiguration: HapticFeedbackConfiguration = .standard,
-        audioConfiguration: AudioFeedbackConfiguration = .standard,
-        spaceDragSensitivity: SpaceDragSensitivity) {
-        weak var input = inputViewController
-        self.autocompleteAction = { input?.performAutocomplete() }
-        self.autocompleteContext = inputViewController.autocompleteContext
-        self.changeKeyboardTypeAction = { input?.keyboardContext.keyboardType = $0 }
-        self.keyboardContext = inputViewController.keyboardContext
-        self.keyboardBehavior = inputViewController.keyboardBehavior
-        let feedbackHandler = StandardKeyboardFeedbackHandler(
-            settings: KeyboardFeedbackSettings(audioConfiguration: audioConfiguration, hapticConfiguration: hapticConfiguration))
-        self.keyboardFeedbackHandler = feedbackHandler
-        self.spaceDragGestureHandler = SpaceCursorDragGestureHandler(
-            context: inputViewController.keyboardContext,
-            feedbackHandler: feedbackHandler,
-            sensitivity: spaceDragSensitivity)
-    }
-    
-    @available(*, deprecated, message: "Use the new spaceDragGestureHandler instead.")
-    open func handleSpaceCursorDragGesture(from startLocation: CGPoint, to currentLocation: CGPoint) {
-        spaceDragGestureHandler.handleDragGesture(from: startLocation, to: currentLocation)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler instead.")
-    open func triggerAudioFeedback(for gesture: KeyboardGesture, on action: KeyboardAction) {
-        keyboardFeedbackHandler.triggerAudioFeedback(for: gesture, on: action)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler instead.")
-    open func triggerAudioFeedback(for gesture: KeyboardGesture, on action: KeyboardAction, sender: Any?) {
-        keyboardFeedbackHandler.triggerAudioFeedback(for: gesture, on: action)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler instead.")
-    open func triggerHapticFeedback(for gesture: KeyboardGesture, on action: KeyboardAction) {
-        keyboardFeedbackHandler.triggerHapticFeedback(for: gesture, on: action)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler instead.")
-    open func triggerHapticFeedback(for gesture: KeyboardGesture, on action: KeyboardAction, sender: Any?) {
-        triggerHapticFeedback(for: gesture, on: action)
-    }
-    
-    @available(*, deprecated, message: "Use the new keyboardFeedbackHandler instead.")
-    open func triggerHapticFeedbackForLongPressOnSpaceDragGesture() {
-        keyboardFeedbackHandler.triggerFeedbackForLongPressOnSpaceDragGesture()
     }
 }

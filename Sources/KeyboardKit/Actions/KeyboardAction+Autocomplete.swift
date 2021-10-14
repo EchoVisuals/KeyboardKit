@@ -18,7 +18,6 @@ public extension KeyboardAction {
         switch self {
         case .character(let char): return char.isWordDelimiter
         case .newLine: return true
-        case .primary: return true
         case .return: return true
         case .space: return true
         default: return false
@@ -27,7 +26,7 @@ public extension KeyboardAction {
     
     /**
      Whether or not an action, when triggered, should insert
-     an autocomplete removed space.
+     a previous autocomplete removed space.
      */
     var shouldReinsertAutocompleteInsertedSpace: Bool {
         shouldRemoveAutocompleteInsertedSpace

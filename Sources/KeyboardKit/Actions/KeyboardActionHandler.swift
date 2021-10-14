@@ -6,19 +6,33 @@
 //  Copyright © 2021 Daniel Saidi. All rights reserved.
 //
 
-import UIKit
+import CoreGraphics
 
 /**
- This protocol can be implemented by classes that can handle
- keyboard actions.
+ This protocol can be implemented by any classes that can be
+ used to handle keyboard actions.
  
  `KeyboardKit` will automatically create a standard instance
- and bind it to the input view controller when the extension
- is started. You can use it and replace it with a custom one.
+ when the keyboard input view controller is created. You can
+ use the standard instance as is or replace it with a custom
+ one if you want to customize your keyboard.
  */
 public protocol KeyboardActionHandler: AnyObject {
     
+    /**
+     Whether or not the action handler can be used to handle
+     a certain `gesture` on a certain `action`.
+     */
     func canHandle(_ gesture: KeyboardGesture, on action: KeyboardAction) -> Bool
+    
+    /**
+     Try to handling a certain `gesture` n a certain `action`.
+     */
     func handle(_ gesture: KeyboardGesture, on action: KeyboardAction)
+    
+    /**
+     Handle a drag gesture on a certain action, from a start
+     location to the drag gesture's current location.
+     */
     func handleDrag(on action: KeyboardAction, from startLocation: CGPoint, to currentLocation: CGPoint)
 }

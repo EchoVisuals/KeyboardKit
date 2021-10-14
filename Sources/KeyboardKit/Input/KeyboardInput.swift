@@ -49,9 +49,9 @@ public struct KeyboardInput: Equatable {
     
     public func character(for casing: KeyboardCasing) -> String {
         switch casing {
+        case .auto: return lowercased
         case .lowercased: return lowercased
         case .uppercased, .capsLocked: return uppercased
-        case .neutral: return neutral
         }
     }
 }

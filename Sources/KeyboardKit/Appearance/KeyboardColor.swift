@@ -27,13 +27,17 @@ import SwiftUI
  */
 public enum KeyboardColor: String, CaseIterable, Identifiable {
     
-    case standardButton
+    case standardButtonBackground
+    case standardButtonBackgroundForColorSchemeBug
+    case standardButtonBackgroundForDarkAppearance
+    case standardButtonForeground
+    case standardButtonForegroundForDarkAppearance
     case standardButtonShadow
-    case standardButtonTint
-    case standardDarkAppearanceButton
-    case standardDarkAppearanceButtonTint
-    case standardDarkAppearanceDarkButton
-    case standardDarkButton
+    case standardDarkButtonBackground
+    case standardDarkButtonBackgroundForColorSchemeBug
+    case standardDarkButtonBackgroundForDarkAppearance
+    case standardKeyboardBackground
+    case standardKeyboardBackgroundForDarkAppearance
     
     /**
      Whether or not to use the `previewColorProvider` when a
@@ -50,8 +54,16 @@ public enum KeyboardColor: String, CaseIterable, Identifiable {
 
 public extension KeyboardColor {
     
+    /**
+     The color's unique identifier.
+     */
     var id: String { rawValue }
     
+    /**
+     This color property is adaptive, since the bundle isn't
+     available when previewing these colors from another app
+     or library project except this library.
+     */
     var color: Color {
         if isSwiftUIPreview && Self.usePreviewColorProvider {
             return Self.previewColorProvider(self)
@@ -71,13 +83,21 @@ private extension KeyboardColor {
 }
 
 struct KeyboardColor_Previews: PreviewProvider {
+    
+    static func preview(for color: KeyboardColor) -> some View {
+        VStack(alignment: .leading) {
+            Text(color.resourceName).font(.footnote)
+            HStack {
+                color.color
+                color.color.colorScheme(.dark)
+            }.frame(height: 100)
+        }
+    }
+    
     static var previews: some View {
         return Group {
-            ForEach(KeyboardColor.allCases) { color in
-                HStack {
-                    color.color
-                    color.color.colorScheme(.dark)
-                }.frame(height: 100)
+            ForEach(KeyboardColor.allCases) {
+                preview(for: $0)
             }
         }.previewLayout(.sizeThatFits)
     }

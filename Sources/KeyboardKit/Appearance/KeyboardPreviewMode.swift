@@ -14,9 +14,8 @@ import SwiftUI
  
  Call `KeyboardPreviewMode.enable()` in any crashing preview
  to bypass the undefined resources and make the preview work.
- You can also provide custom values.
- 
- Read more about the problem in `KKL10n` and `KeyboardColor`.
+ You can also provide custom values. Read more about this in
+ the `KeyboardColor` documentation.
  */
 public final class KeyboardPreviewMode {
     
@@ -28,13 +27,17 @@ public final class KeyboardPreviewMode {
      */
     public static let colorProvider: ColorProvider = {
         switch $0 {
-        case .standardButton: return .white
+        case .standardButtonBackground: return .white
+        case .standardButtonBackgroundForColorSchemeBug: return .gray
+        case .standardButtonBackgroundForDarkAppearance: return .gray
+        case .standardButtonForeground: return .black
+        case .standardButtonForegroundForDarkAppearance: return .white
         case .standardButtonShadow: return .black
-        case .standardButtonTint: return .black
-        case .standardDarkAppearanceButton: return .gray
-        case .standardDarkAppearanceButtonTint: return .white
-        case .standardDarkAppearanceDarkButton: return .gray
-        case .standardDarkButton: return .gray
+        case .standardDarkButtonBackground: return .gray
+        case .standardDarkButtonBackgroundForColorSchemeBug: return .white
+        case .standardDarkButtonBackgroundForDarkAppearance: return .white
+        case .standardKeyboardBackground: return .gray
+        case .standardKeyboardBackgroundForDarkAppearance: return .white
         }
     }
     

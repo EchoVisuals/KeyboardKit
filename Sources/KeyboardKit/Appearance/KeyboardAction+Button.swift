@@ -6,64 +6,10 @@
 //  Copyright © 2021 Daniel Saidi. All rights reserved.
 //
 
+import CoreGraphics
 import SwiftUI
-import UIKit
 
 public extension KeyboardAction {
-    
-    /**
-     The action's standard button background color.
-     */
-    func standardButtonBackgroundColor(for context: KeyboardContext, isPressed: Bool = false) -> Color {
-        if let color = standardButtonBackgroundColorForAllStates() { return color }
-        return isPressed
-            ? standardButtonBackgroundColorForPressedState(for: context)
-            : standardButtonBackgroundColorForIdleState(for: context)
-    }
-    
-    /**
-     The action's standard button font.
-     */
-    func standardButtonFont(for context: KeyboardContext) -> Font {
-        Font.system(size: standardButtonFontSize(for: context))
-    }
-    
-    /**
-     The action's standard button font size.
-     */
-    func standardButtonFontSize(for context: KeyboardContext) -> CGFloat {
-        if standardButtonImage(for: context) != nil { return 20 }
-        switch self {
-        case .keyboardType(let type): return type.standardButtonFontSize(for: context)
-        case .space: return 16
-        default: break
-        }
-        
-        let text = standardButtonText(for: context) ?? ""
-        if isInputAction && text.isLowercased { return 26 }
-        if isSystemAction || isPrimaryAction { return 16 }
-        return 23
-    }
-    
-    /**
-     The action's standard button font weight, if any.
-     */
-    func standardButtonFontWeight(for context: KeyboardContext) -> Font.Weight? {
-        if standardButtonImage(for: context) != nil { return .light }
-        switch self {
-        case .character(let char): return char.isLowercased ? .light : nil
-        default: return nil
-        }
-    }
-    
-    /**
-     The action's standard button foreground color.
-     */
-    func standardButtonForegroundColor(for context: KeyboardContext, isPressed: Bool = false) -> Color {
-        return isPressed
-            ? standardButtonForegroundColorForPressedState(for: context)
-            : standardButtonForegroundColorForIdleState(for: context)
-    }
     
     /**
      The action's standard button image.
@@ -72,34 +18,25 @@ public extension KeyboardAction {
         if let image = standardButtonTextImageReplacement(for: context) { return image }
         
         switch self {
-        case .backspace: return .backspace
-        case .command: return .command
-        case .control: return .control
-        case .dictation: return .dictation
+        case .backspace: return .keyboardBackspace
+        case .command: return .keyboardCommand
+        case .control: return .keyboardControl
+        case .dictation: return .keyboardDictation
         case .dismissKeyboard: return .keyboardDismiss
         case .image(_, let imageName, _): return Image(imageName)
         case .keyboardType(let type): return type.standardButtonImage
-        case .moveCursorBackward: return .moveCursorLeft
-        case .moveCursorForward: return .moveCursorRight
-        case .newLine: return .newLine
-        case .nextKeyboard: return .globe
-        case .option: return .option
+        case .moveCursorBackward: return .keyboardLeft
+        case .moveCursorForward: return .keyboardRight
+        case .newLine: return .keyboardNewline
+        case .nextKeyboard: return .keyboardGlobe
+        case .option: return .keyboardOption
         case .primary(let type): return type.standardButtonImage
-        case .settings: return .settings
+        case .settings: return .keyboardSettings
         case .shift(let currentState): return currentState.standardButtonImage
         case .systemImage(_, let imageName, _): return Image(systemName: imageName)
-        case .tab: return .tab
+        case .tab: return .keyboardTab
         default: return nil
         }
-    }
-    
-    /**
-     The action's standard button shadow color.
-     */
-    func standardButtonShadowColor(for context: KeyboardContext) -> Color {
-        if case .none = self { return .clear }
-        if case .emoji = self { return .clear }
-        return .standardButtonShadowColor(for: context)
     }
     
     /**
@@ -108,27 +45,24 @@ public extension KeyboardAction {
     func standardButtonText(for context: KeyboardContext) -> String? {
         switch self {
         case .character(let char): return char
-        case .done: return KKL10n.done.text(for: context)
         case .emoji(let emoji): return emoji.char
         case .emojiCategory(let cat): return cat.fallbackDisplayEmoji.char
-        case .go: return KKL10n.go.text(for: context)
         case .keyboardType(let type): return type.standardButtonText(for: context)
         case .nextLocale: return context.locale.languageCode?.uppercased()
-        case .ok: return KKL10n.ok.text(for: context)
         case .primary(let type): return type.standardButtonText(for: context)
         case .return: return KKL10n.return.text(for: context)
-        case .search: return KKL10n.search.text(for: context)
+        case .space: return KKL10n.space.text(for: context)
         default: return nil
         }
     }
     
     /**
      The action's standard button text image replacement, if
-     the text is an icon that has a related image.
+     the text represents an image asset.
      */
     func standardButtonTextImageReplacement(for context: KeyboardContext) -> Image? {
         switch standardButtonText(for: context) {
-        case "↵": return .newLine
+        case "↵": return .keyboardNewline
         default: return nil
         }
     }
@@ -138,7 +72,7 @@ private extension KeyboardAction.PrimaryType {
     
     var standardButtonImage: Image? {
         switch self {
-        case .newLine: return .newLine
+        case .newLine: return .keyboardNewline
         default: return nil
         }
     }

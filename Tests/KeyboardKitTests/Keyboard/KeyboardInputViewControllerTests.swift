@@ -86,20 +86,35 @@ class KeyboardInputViewControllerTests: QuickSpec {
                 expect(vc.view.subviews.count).to(equal(1))
             }
         }
-    
-        describe("setting up with stack view") {
+        
+        
+        // MARK: - Properties
+        
+        describe("text document proxy") {
             
-            it("adds and configures the view") {
-                expect(vc.view.subviews.count).to(equal(2))
-                let view = UIStackView()
-                vc.setup(with: view)
-                expect(vc.view.subviews.count).to(equal(1))
-                expect(view.frame).to(equal(.zero))
-                expect(view.axis).to(equal(.vertical))
-                expect(view.alignment).to(equal(.fill))
-                expect(view.distribution).to(equal(.equalSpacing))
+            it("returns the original text document proxy if no input proxy is defined") {
+                expect(vc.textDocumentProxy).to(be(vc.originalTextDocumentProxy))
+            }
+            
+            it("returns the input text document proxy if one is defined") {
+                let input = MockTextInput()
+                let proxy = TextInputProxy(input: input)
+                vc.textInputProxy = proxy
+                expect(vc.textDocumentProxy).to(be(proxy))
             }
         }
+        
+        describe("text input proxy") {
+            
+            it("makes vc sync with proxy when set") {
+                vc.mock.resetCalls()
+                let input = MockTextInput()
+                let proxy = TextInputProxy(input: input)
+                vc.textInputProxy = proxy
+                expect(vc.keyboardContext.textDocumentProxy).to(be(proxy))
+            }
+        }
+        
         
         
         // MARK: - Observables
@@ -125,7 +140,7 @@ class KeyboardInputViewControllerTests: QuickSpec {
         describe("service properties") {
             
             it("has standard instances by default") {
-                expect(vc.autocompleteSuggestionProvider as? DisabledAutocompleteSuggestionProvider).toNot(beNil())
+                expect(vc.autocompleteProvider as? DisabledAutocompleteProvider).toNot(beNil())
                 expect(vc.keyboardActionHandler as? StandardKeyboardActionHandler).toNot(beNil())
                 expect(vc.keyboardAppearance as? StandardKeyboardAppearance).toNot(beNil())
                 expect(vc.keyboardBehavior as? StandardKeyboardBehavior).toNot(beNil())
@@ -215,7 +230,7 @@ class KeyboardInputViewControllerTests: QuickSpec {
                 let locale = KeyboardLocale.swedish
                 vc.viewDidLoad()
                 vc.keyboardContext.locale = locale.locale
-                expect(vc.autocompleteSuggestionProvider.locale).toEventually(equal(locale.locale))
+                expect(vc.autocompleteProvider.locale).toEventually(equal(locale.locale))
             }
         }
         
@@ -224,13 +239,13 @@ class KeyboardInputViewControllerTests: QuickSpec {
         
         describe("performing autocomplete") {
             
-            var provider: MockAutocompleteSuggestionProvider!
+            var provider: MockAutocompleteProvider!
             var proxy: MockTextDocumentProxy!
             
             beforeEach {
-                provider = MockAutocompleteSuggestionProvider()
+                provider = MockAutocompleteProvider()
                 proxy = MockTextDocumentProxy()
-                vc.autocompleteSuggestionProvider = provider
+                vc.autocompleteProvider = provider
                 vc.textDocumentProxyValue = proxy
             }
             
@@ -261,7 +276,6 @@ class KeyboardInputViewControllerTests: QuickSpec {
 
 private class TestClass: KeyboardInputViewController, Mockable {
     
-    lazy var viewWillSyncWithTextDocumentProxyRef = MockReference(viewWillSyncWithTextDocumentProxy)
     lazy var performAutocompleteRef = MockReference(performAutocomplete)
     lazy var resetAutocompleteRef = MockReference(resetAutocomplete)
     
@@ -283,11 +297,6 @@ private class TestClass: KeyboardInputViewController, Mockable {
     var textDocumentProxyValue: UITextDocumentProxy?
     override var textDocumentProxy: UITextDocumentProxy {
         textDocumentProxyValue ?? super.textDocumentProxy
-    }
-    
-    override func viewWillSyncWithTextDocumentProxy() {
-        super.viewWillSyncWithTextDocumentProxy()
-        mock.call(viewWillSyncWithTextDocumentProxyRef, args: ())
     }
     
     override func performAutocomplete() {
